@@ -18,6 +18,10 @@ Terminal (AWS SSO credentials)
 
 **The Model** provides the intelligence. **The Tools** retrieve AWS information. **The Permissions** control access.
 
+## Example Output
+
+![Bedrock-Output-Example](docs/Bedrock-Run-Example.png)
+
 ## Prerequisites
 
 - Python 3.10+ and AWS CLI v2
