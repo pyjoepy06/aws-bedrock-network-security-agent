@@ -1,8 +1,6 @@
 # AWS Bedrock Network Security Investigator
 
-**Cloud Accelerator Experience — Week 2: Enterprise Networking & Cloud Security**
-
-A read-only teaching lab for investigating AWS Security Group inbound rules using **Amazon Bedrock (Nova Lite)**, **Strands Agents**, **Python**, and **Boto3**.
+A read-only open-source example for investigating AWS Security Group inbound rules using **Amazon Bedrock (Nova Lite)**, **Strands Agents**, **Python**, and **Boto3**.
 
 > Educational demonstration, not a comprehensive security assessment. Verify AI conclusions against AWS configuration.
 
@@ -27,7 +25,7 @@ Terminal (AWS SSO credentials)
 - EC2 `DescribeSecurityGroups` and permission to invoke the selected Bedrock inference profile
 - Amazon Nova Lite cross-Region inference profile available in `us-east-1` (verify availability in your account)
 
-AWS Bedrock inference can incur charges. Do not use root credentials or production accounts for this lab.
+AWS Bedrock inference can incur charges. Do not use root credentials. Use an authorized development or sandbox account for testing.
 
 ## Installation
 
@@ -63,7 +61,7 @@ The included working example uses `us.amazon.nova-lite-v1:0` with Bedrock in `us
 
 The agent explains potentially risky inbound rules, suggests improvements and **does not modify AWS resources**. A default Security Group self-reference is not automatically a vulnerability. A public CIDR on a Security Group does not, by itself, establish actual host reachability.
 
-## Instructor demo: intentionally permissive SSH rule
+## Optional test: intentionally permissive SSH rule
 
 **Only in an authorized sandbox**, create a test Security Group that is **not attached** to any instance or network interface. Do not use an existing Security Group.
 
@@ -71,8 +69,8 @@ The agent explains potentially risky inbound rules, suggests improvements and **
 export DEMO_VPC_ID=vpc-REPLACE_WITH_YOUR_DEV_VPC
 
 export DEMO_SG_ID=$(aws ec2 create-security-group \
-  --group-name ai-agent-week2-demo \
-  --description "Unattached Security Group for Week 2 AI demo" \
+  --group-name ai-agent-security-demo \
+  --description "Unattached Security Group for AI security testing" \
   --vpc-id "$DEMO_VPC_ID" \
   --query GroupId --output text)
 
@@ -85,7 +83,7 @@ aws ec2 authorize-security-group-ingress \
 python agent.py
 ```
 
-**Discussion:** Explain why SSH from `0.0.0.0/0` is overly permissive, what risk it *could* create if attached to a publicly reachable resource, and which other factors (attachment, public IP, internet routes, NACLs, host firewall) determine actual reachability.
+**What to look for:** Review why SSH from `0.0.0.0/0` is overly permissive, what risk it *could* create if attached to a publicly reachable resource, and which other factors (attachment, public IP, internet routes, NACLs, host firewall) determine actual reachability.
 
 ### Cleanup — required
 
@@ -108,15 +106,7 @@ aws bedrock get-inference-profile \
 
 If the returned models include several Regions, include **each** model ARN in the policy. AWS Organizations SCPs must also allow the required destination Regions (or a suitable inference-profile exception). See [AWS cross-Region inference IAM requirements](https://docs.aws.amazon.com/bedrock/latest/userguide/geographic-cross-region-inference.html).
 
-For the real application, grant access through a dedicated role with no write permissions. The separate *demo setup* CLI commands need EC2 create/delete/authorize permissions and should be run only by an authorized instructor.
-
-## Student assignment
-
-1. Identify protocol, port and source CIDR in a risky rule.
-2. Explain why a Security Group rule alone cannot establish internet reachability.
-3. Recommend a least-privilege alternative.
-4. List the additional evidence needed to establish exposure.
-5. Clean up the demo Security Group and confirm deletion.
+For the real application, grant access through a dedicated role with no write permissions. The separate *demo setup* CLI commands need EC2 create/delete/authorize permissions and should be run only by an authorized operator in a sandbox.
 
 ## Limitations and security
 
@@ -124,4 +114,3 @@ This example sends Security Group rule details to the Bedrock model and analyzes
 
 Never commit access keys, SSO caches, `.aws` configuration, `.venv`, or client resource inventories. The supplied `.gitignore` helps with local development, but does not replace secret scanning and review.
 
-**TRANSLATE → IMPLEMENT → DEMONSTRATE.**
